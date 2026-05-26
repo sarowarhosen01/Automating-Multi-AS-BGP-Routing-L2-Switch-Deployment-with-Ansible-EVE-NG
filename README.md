@@ -75,6 +75,8 @@ bgp/
 
 ---
 
+![Network Topology](screenshot/screenshort.png)
+
 ## 🛠️ Prerequisites & Setup
 
 ### 1. Control Node Requirements
