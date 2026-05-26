@@ -1,0 +1,50 @@
+---
+# ----------------------------------------------------
+# CISCO IOS BGP ROUTER CONFIGURATION TASKS
+# ----------------------------------------------------
+
+# ===================== HOSTNAME =====================
+- name: Configure hostname
+  cisco.ios.ios_config:
+    lines:
+      - hostname {{ inventory_hostname }}
+
+# ===================== INTERFACES =====================
+- name: Configure router interfaces and assign IP addresses
+  cisco.ios.ios_config:
+    parents: "interface {{ item.name }}"
+    lines:
+      - description {{ item.description }}
+      - ip address {{ item.ip_address }} {{ item.netmask }}
+      - no shutdown
+  loop: "{{ router_interfaces[inventory_hostname] }}"
+
+# ===================== BGP ROUTING =====================
+- name: Configure BGP routing process and neighbors
+  cisco.ios.ios_config:
+    parents: "router bgp {{ bgp_config[inventory_hostname].as_number }}"
+    lines:
+      - bgp router-id {{ bgp_config[inventory_hostname].router_id }}
+      - log-neighbor-changes
+
+- name: Advertise networks in BGP
+  cisco.ios.ios_config:
+    parents: "router bgp {{ bgp_config[inventory_hostname].as_number }}"
+    lines: |
+      {% for net in bgp_config[inventory_hostname].networks %}
+      network {{ net.network }} mask {{ net.mask }}
+      {% endfor %}
+
+- name: Configure BGP neighbors
+  cisco.ios.ios_config:
+    parents: "router bgp {{ bgp_config[inventory_hostname].as_number }}"
+    lines: |
+      {% for neighbor in bgp_config[inventory_hostname].neighbors %}
+      neighbor {{ neighbor.ip }} remote-as {{ neighbor.remote_as }}
+      neighbor {{ neighbor.ip }} description Link to AS{{ neighbor.remote_as }}
+      {% endfor %}
+
+# ===================== SAVE CONFIG =====================
+- name: Save configuration to NVRAM
+  cisco.ios.ios_config:
+    save_when: always

@@ -1,0 +1,127 @@
+# roles/router_config/vars/main.yml
+--- 
+# BGP and Interface configuration variables for the routers
+
+router_interfaces:
+  R1:
+    - name: Loopback0
+      description: Router ID Loopback
+      ip_address: 1.1.1.1
+      netmask: 255.255.255.255
+    - name: GigabitEthernet0/1
+      description: Link to R2
+      ip_address: 192.168.12.1
+      netmask: 255.255.255.0
+    - name: GigabitEthernet0/2
+      description: Link to R5
+      ip_address: 192.168.15.1
+      netmask: 255.255.255.0
+  R2:
+    - name: Loopback0
+      description: Router ID Loopback
+      ip_address: 2.2.2.2
+      netmask: 255.255.255.255
+    - name: GigabitEthernet0/1
+      description: Link to R1
+      ip_address: 192.168.12.2
+      netmask: 255.255.255.0
+    - name: GigabitEthernet0/2
+      description: Link to R3
+      ip_address: 192.168.23.2
+      netmask: 255.255.255.0
+  R3:
+    - name: Loopback0
+      description: Router ID Loopback
+      ip_address: 3.3.3.3
+      netmask: 255.255.255.255
+    - name: GigabitEthernet0/1
+      description: Link to R2
+      ip_address: 192.168.23.3
+      netmask: 255.255.255.0
+    - name: GigabitEthernet0/2
+      description: Link to R4
+      ip_address: 192.168.34.3
+      netmask: 255.255.255.0
+  R4:
+    - name: Loopback0
+      description: Router ID Loopback
+      ip_address: 4.4.4.4
+      netmask: 255.255.255.255
+    - name: GigabitEthernet0/1
+      description: Link to R3
+      ip_address: 192.168.34.4
+      netmask: 255.255.255.0
+    - name: GigabitEthernet0/2
+      description: Link to R5
+      ip_address: 192.168.45.4
+      netmask: 255.255.255.0
+  R5:
+    - name: Loopback0
+      description: Router ID Loopback
+      ip_address: 5.5.5.5
+      netmask: 255.255.255.255
+    - name: GigabitEthernet0/1
+      description: Link to R4
+      ip_address: 192.168.45.5
+      netmask: 255.255.255.0
+    - name: GigabitEthernet0/2
+      description: Link to R1
+      ip_address: 192.168.15.5
+      netmask: 255.255.255.0
+
+bgp_config:
+  R1:
+    as_number: 65001
+    router_id: 1.1.1.1
+    networks:
+      - network: 1.1.1.1
+        mask: 255.255.255.255
+    neighbors:
+      - ip: 192.168.12.2
+        remote_as: 65002
+      - ip: 192.168.15.5
+        remote_as: 65005
+  R2:
+    as_number: 65002
+    router_id: 2.2.2.2
+    networks:
+      - network: 2.2.2.2
+        mask: 255.255.255.255
+    neighbors:
+      - ip: 192.168.12.1
+        remote_as: 65001
+      - ip: 192.168.23.3
+        remote_as: 65003
+  R3:
+    as_number: 65003
+    router_id: 3.3.3.3
+    networks:
+      - network: 3.3.3.3
+        mask: 255.255.255.255
+    neighbors:
+      - ip: 192.168.23.2
+        remote_as: 65002
+      - ip: 192.168.34.4
+        remote_as: 65004
+  R4:
+    as_number: 65004
+    router_id: 4.4.4.4
+    networks:
+      - network: 4.4.4.4
+        mask: 255.255.255.255
+    neighbors:
+      - ip: 192.168.34.3
+        remote_as: 65003
+      - ip: 192.168.45.5
+        remote_as: 65005
+  R5:
+    as_number: 65005
+    router_id: 5.5.5.5
+    networks:
+      - network: 5.5.5.5
+        mask: 255.255.255.255
+    neighbors:
+      - ip: 192.168.45.4
+        remote_as: 65004
+      - ip: 192.168.15.1
+        remote_as: 65001
